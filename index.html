@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111116">
+  <meta name="description" content="دستیار آفلاین Anime Archive">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>دستیار آفلاین | Anime Archive</title>
+  <style>
+    :root { color-scheme: dark; --bg:#111116; --panel:#19191f; --panel2:#202027; --line:#30303a; --text:#f4f1f7; --muted:#aaa5b4; --accent:#e5a044; --accent2:#f2bf71; --danger:#ff8585; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(ellipse at top right,#24202a 0,#111116 45%); color:var(--text); font-family:Tahoma,Arial,sans-serif; }
+    button,input,textarea { font:inherit; }
+    button { cursor:pointer; }
+    .app { width:min(100%,900px); min-height:100vh; margin:auto; display:flex; flex-direction:column; padding:0 14px; }
+    header { display:flex; align-items:center; gap:12px; padding:19px 2px 15px; border-bottom:1px solid var(--line); }
+    .logo { width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#f0b65c,#9b5421);color:#171219;font-size:23px;font-weight:900;box-shadow:0 5px 22px #e5a04422; }
+    h1 { font-size:17px; margin:0 0 5px; letter-spacing:-.3px; }
+    .sub { color:var(--muted);font-size:12px; }
+    .status { margin-right:auto; display:flex; align-items:center; gap:6px; color:#9fe0b4; font-size:11px; white-space:nowrap; }
+    .dot { width:7px;height:7px;border-radius:50%;background:#7ed69c; }
+    .intro { padding:22px 3px 12px; }
+    .intro h2 { font-size:20px;line-height:1.7;margin:0 0 7px; }
+    .intro p { color:var(--muted);font-size:13px;line-height:1.9;margin:0; }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; padding:6px 0 16px; }
+    .chip { border:1px solid #3b3440; background:#211e27;color:#e7d9ed;padding:9px 11px;border-radius:999px;font-size:12px; }
+    .chip:active { transform:scale(.98); }
+    .chat { flex:1; display:flex; flex-direction:column; gap:13px; padding:4px 0 16px; }
+    .message { max-width:92%; padding:13px 14px; border:1px solid var(--line); border-radius:16px; line-height:1.95; font-size:13px; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .bot { align-self:flex-start; background:var(--panel); border-top-right-radius:5px; }
+    .user { align-self:flex-end; background:#3b2b1d; border-color:#5e442b; border-top-left-radius:5px; }
+    .meta { color:var(--muted);font-size:10px;margin-top:8px; }
+    .answer-title { color:var(--accent2);font-weight:bold; }
+    .composer-wrap { position:sticky;bottom:0;background:linear-gradient(180deg,#11111600,#111116 18%);padding:15px 0 max(15px,env(safe-area-inset-bottom)); }
+    .composer { display:flex; gap:8px; padding:7px; border:1px solid #44404a; background:#1a191f; border-radius:17px; box-shadow:0 10px 35px #0005; }
+    #question { flex:1; min-width:0; border:0; outline:0; color:var(--text);background:transparent;padding:9px 8px;font-size:14px; }
+    #send { border:0;border-radius:12px;background:var(--accent);color:#20170e;font-weight:bold;padding:0 17px;min-width:65px; }
+    #send:disabled { opacity:.5; }
+    .tools { display:flex;justify-content:space-between;gap:10px;padding:10px 3px 0; }
+    .text-btn { background:none;border:0;color:var(--muted);font-size:11px;padding:5px 0; }
+    .text-btn:hover { color:var(--accent2); }
+    .notice { font-size:10px;color:#827d8b;text-align:center;line-height:1.8;padding-bottom:10px; }
+    .panel { display:none; border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:13px;margin:0 0 12px; }
+    .panel.show { display:block; }
+    .panel h3 { font-size:14px;margin:0 0 8px; }
+    .panel p { font-size:12px;color:var(--muted);line-height:1.8; }
+    .panel textarea { width:100%;min-height:100px;resize:vertical;background:#111116;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;line-height:1.8; }
+    .action { background:var(--accent);color:#21170d;border:0;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:bold;margin-top:8px; }
+    .secondary { background:#2a2931;color:var(--text);border:1px solid var(--line); }
+    .toast { position:fixed;bottom:105px;left:50%;transform:translateX(-50%);background:#302a35;border:1px solid #514657;color:white;padding:10px 14px;border-radius:10px;font-size:12px;display:none;max-width:90%;text-align:center; }
+    @media(min-width:700px) { .app{padding:0 26px;} .intro{padding-top:30px;} .message{max-width:82%;font-size:14px;} }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">A</div>
+    <div><h1>دستیار آفلاین Anime Archive</h1><div class="sub">نسخهٔ آزمایشی · بانک اطلاعاتی محلی</div></div>
+    <div class="status"><span class="dot"></span><span id="statusText">آماده</span></div>
+  </header>
+  <section class="intro" id="intro">
+    <h2>دنبال چه اطلاعاتی از انیمه‌ای؟</h2>
+    <p>اسم انیمه یا سؤالت رو بنویس. این نسخه از اطلاعات ذخیره‌شده استفاده می‌کنه و برای پاسخ‌گویی به اینترنت وصل نمی‌شه.</p>
+  </section>
+  <div class="chips" id="chips">
+    <button class="chip" data-q="دفترچه مرگ چند قسمت داره؟">تعداد قسمت‌ها</button>
+    <button class="chip" data-q="انیمه‌های شبیه آنا هانا معرفی کن">پیشنهاد مشابه</button>
+    <button class="chip" data-q="فیلم سینمایی صدای خاموش درباره چیه؟">خلاصهٔ داستان</button>
+    <button class="chip" data-q="چه اطلاعاتی از انیمه‌ها داری؟">راهنما</button>
+  </div>
+  <main class="chat" id="chat" aria-live="polite">
+    <div class="message bot">سلام. من نسخهٔ اولیهٔ دستیار آفلاینم. فعلاً بانک اطلاعاتی‌ام نمونه است و با اضافه‌شدن اطلاعات، جواب‌های بیشتری می‌دم.
+      <div class="meta">بدون اتصال به اینترنت</div>
+    </div>
+  </main>
+  <section class="panel" id="correctionPanel">
+    <h3>پیشنهاد اصلاح پاسخ</h3>
+    <p>پیشنهادت فقط روی همین مرورگر ذخیره می‌شه. برای انتقالش به بانک اطلاعاتی اصلی، فایل خروجی بگیر.</p>
+    <textarea id="correctionText" placeholder="جواب درست یا اطلاعاتی که باید اضافه شود..."></textarea>
+    <div><button class="action" id="saveCorrection">ذخیرهٔ پیشنهاد</button><button class="action secondary" id="cancelCorrection">لغو</button></div>
+  </section>
+  <div class="composer-wrap">
+    <form class="composer" id="chatForm">
+      <input id="question" type="text" autocomplete="off" placeholder="مثلاً: آنا هانا چند قسمته؟" aria-label="سؤال شما">
+      <button id="send" type="submit">بفرست</button>
+    </form>
+    <div class="tools"><button class="text-btn" id="exportBtn">خروجی اصلاحات</button><button class="text-btn" id="clearBtn">پاک‌کردن گفتگو</button><button class="text-btn" id="aboutBtn">دربارهٔ نسخه</button></div>
+    <div class="notice">نسخهٔ آزمایشی است؛ اطلاعات نمونه ممکن است کامل نباشند. برای اطلاعات متغیر مثل امتیازها، تاریخ بررسی لازم است.</div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const chat = $('chat');
+  let db = { anime: [], faq: [], recommendations: [] };
+  let lastQuestion = '';
+  let lastAnswer = '';
+  let correctionTarget = null;
+  const correctionsKey = 'aa_offline_corrections_v1';
+
+  function toast(message) {
+    const el = $('toast'); el.textContent = message; el.style.display = 'block';
+    clearTimeout(toast.timer); toast.timer = setTimeout(() => el.style.display = 'none', 2400);
+  }
+  function normalize(value) {
+    return String(value || '').toLowerCase().replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/[ۀة]/g, 'ه')
+      .replace(/[؟?!.,،؛:()\[\]{}\-_]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function tokens(value) { return normalize(value).split(' ').filter(w => w.length > 1); }
+  function editDistance(a, b) {
+    if (Math.abs(a.length - b.length) > 3) return 99;
+    const row = Array.from({length:b.length+1}, (_,i)=>i);
+    for (let i=1;i<=a.length;i++) {
+      let prev=row[0]; row[0]=i;
+      for (let j=1;j<=b.length;j++) {
+        const old=row[j]; row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1)); prev=old;
+      }
+    }
+    return row[b.length];
+  }
+  function fuzzyContains(haystack, needle) {
+    if (!needle) return false;
+    if (haystack.includes(needle)) return true;
+    const hs=tokens(haystack), ns=tokens(needle);
+    return ns.length>0 && ns.every(n => hs.some(h => h===n || (n.length>=4 && editDistance(h,n)<=1)));
+  }
+  function scoreMatch(question, candidates) {
+    const q=normalize(question); const qt=tokens(q); let best=null, bestScore=0;
+    for (const candidate of candidates) {
+      const phrases=[candidate.title, ...(candidate.aliases||[])].map(normalize);
+      let score=0;
+      for (const phrase of phrases) {
+        if (!phrase) continue;
+        if (q.includes(phrase)) score=Math.max(score, 10 + phrase.length/10);
+        const pt=tokens(phrase); if (pt.length) {
+          const hits=pt.filter(p=>qt.some(t=>t===p || (t.length>=4 && editDistance(t,p)<=1))).length;
+          score=Math.max(score, hits/pt.length*6);
+        }
+      }
+      if(score>bestScore){best=candidate;bestScore=score;}
+    }
+    return bestScore>=4 ? best : null;
+  }
+  function findAnime(question) { return scoreMatch(question, db.anime); }
+  function pickIntent(q) {
+    const n=normalize(q);
+    if (/چند قسمت|تعداد قسمت|قسمت داره|قسمته|اپیزود|چند اپیزود/.test(n)) return 'episodes';
+    if (/چند فصل|تعداد فصل|فصل داره|فصلشه/.test(n)) return 'seasons';
+    if (/استودیو|ساخته کدوم|سازنده/.test(n)) return 'studio';
+    if (/چه سال|سال ساخت|سال انتشار|کی اومد|تاریخ انتشار/.test(n)) return 'year';
+    if (/ژانر|چه سبکی|سبکشه/.test(n)) return 'genres';
+    if (/خلاصه|درباره چیه|داستانش|موضوعش/.test(n)) return 'summary';
+    if (/فیلمه|فیلم سینمایی|مدت زمان|چند دقیقه/.test(n)) return 'format';
+    if (/مشابه|شبیه|مثل .* معرفی|پیشنهاد/.test(n)) return 'similar';
+    if (/پایان|آخرش|اخرش|پایانش/.test(n)) return 'ending';
+    if (/راهنما|چه اطلاعاتی|چی بلدی|چه کار/.test(n)) return 'help';
+    return 'general';
+  }
+  function formatAnswer(anime, intent) {
+    const name=anime.title;
+    if (intent==='episodes') return anime.episodes ? `${name} ${anime.episodes} قسمت دارد${anime.episodeNote ? ' ('+anime.episodeNote+')' : ''}.` : `تعداد قسمت‌های ${name} هنوز در بانک اطلاعاتی ثبت نشده.`;
+    if (intent==='seasons') return anime.seasons ? `${name} ${anime.seasons} فصل دارد${anime.seasonNote ? ' ('+anime.seasonNote+')' : ''}.` : `تعداد فصل‌های ${name} هنوز در بانک اطلاعاتی ثبت نشده.`;
+    if (intent==='studio') return anime.studio ? `استودیو ${name}: ${anime.studio}.` : `استودیوی ${name} در بانک اطلاعاتی ثبت نشده.`;
+    if (intent==='year') return anime.year ? `سال انتشار ${name}: ${anime.year}.` : `سال انتشار ${name} ثبت نشده.`;
+    if (intent==='genres') return anime.genres?.length ? `ژانرهای ${name}: ${anime.genres.join('، ')}.` : `ژانرهای ${name} ثبت نشده.`;
+    if (intent==='summary') return anime.summary ? `${name}\n${anime.summary}` : `خلاصهٔ بدون اسپویل ${name} ثبت نشده.`;
+    if (intent==='format') return anime.format ? `${name}: ${anime.format}${anime.runtime ? '، مدت زمان '+anime.runtime : ''}.` : `نوع اثر ${name} ثبت نشده.`;
+    if (intent==='ending') return anime.ending ? `توضیح پایان (اسپویل): ${anime.ending}` : `توضیح پایان ${name} در بانک اطلاعاتی نیست. اگر بخوای، می‌تونیم بعداً بخش توضیح پایان را به اطلاعاتش اضافه کنیم.`;
+    const lines=[name];
+    if(anime.year) lines.push('سال انتشار: '+anime.year);
+    if(anime.studio) lines.push('استودیو: '+anime.studio);
+    if(anime.format) lines.push('نوع اثر: '+anime.format);
+    if(anime.seasons) lines.push('فصل‌ها: '+anime.seasons);
+    if(anime.episodes) lines.push('قسمت‌ها: '+anime.episodes);
+    if(anime.genres?.length) lines.push('ژانرها: '+anime.genres.join('، '));
+    if(anime.summary) lines.push('\n'+anime.summary);
+    return lines.join('\n');
+  }
+  function answerQuestion(question) {
+    const intent=pickIntent(question);
+    if(intent==='help') return 'فعلاً می‌تونم اطلاعات پایهٔ چند اثر نمونه مثل سال انتشار، استودیو، ژانر، تعداد قسمت و خلاصهٔ بدون اسپویل رو پیدا کنم. بانک اطلاعاتی هنوز کامل نیست و قراره به‌تدریج گسترش پیدا کنه.';
+    const anime=findAnime(question);
+    if(intent==='similar') {
+      const source=anime || db.anime.find(a => (a.moodTags||[]).some(tag=>normalize(question).includes(normalize(tag))));
+      if(source) {
+        const recs=(source.similar||[]).map(id=>db.anime.find(a=>a.id===id)).filter(Boolean);
+        if(recs.length) return `اگر از ${source.title} خوشت اومده، این‌ها رو هم بررسی کن:\n`+recs.map(a=>'• '+a.title+(a.format?' — '+a.format:'')).join('\n')+'\n\nاین پیشنهادها نمونه‌ای‌اند؛ با تکمیل بانک اطلاعاتی دقیق‌تر می‌شن.';
+      }
+      return 'برای پیشنهاد دقیق‌تر، اسم یک انیمه یا حال‌وهوایی که می‌خوای (مثلاً معمایی یا احساسی) رو بنویس. بخش پیشنهادها هنوز محدود است.';
+    }
+    if(anime) return formatAnswer(anime,intent);
+    const q=normalize(question);
+    const faq=db.faq.find(f => (f.questions||[]).some(s=>fuzzyContains(q,s)));
+    if(faq) return faq.answer;
+    return 'جواب مطمئنی برای این سؤال در بانک اطلاعاتی فعلی ندارم. نمی‌خوام اطلاعات ساختگی بدم. می‌تونی از بخش «پیشنهاد اصلاح پاسخ» اطلاعات درست رو ثبت کنی؛ فعلاً این پیشنهاد روی همین دستگاه ذخیره می‌شه.';
+  }
+  function addMessage(text, who, metaText='') {
+    const div=document.createElement('div'); div.className='message '+who; div.textContent=text;
+    if(metaText){const meta=document.createElement('div');meta.className='meta';meta.textContent=metaText;div.appendChild(meta);}
+    if(who==='bot'){
+      const tools=document.createElement('div');tools.className='meta';
+      const btn=document.createElement('button');btn.className='text-btn';btn.textContent='پیشنهاد اصلاح';btn.type='button';
+      btn.addEventListener('click',()=>{correctionTarget={question:lastQuestion,answer:text};$('correctionText').value='';$('correctionPanel').classList.add('show');$('correctionText').focus();});
+      tools.appendChild(btn);div.appendChild(tools);
+    }
+    chat.appendChild(div); div.scrollIntoView({behavior:'smooth',block:'end'});
+  }
+  function submitQuestion(value) {
+    const q=String(value||'').trim(); if(!q) return;
+    $('intro').style.display='none'; $('chips').style.display='none';
+    addMessage(q,'user'); lastQuestion=q;
+    const a=answerQuestion(q); lastAnswer=a; addMessage(a,'bot','پاسخ بر اساس بانک اطلاعاتی محلی');
+    $('question').value=''; $('question').focus();
+  }
+  $('chatForm').addEventListener('submit',e=>{e.preventDefault();submitQuestion($('question').value);});
+  $('chips').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b)submitQuestion(b.dataset.q);});
+  $('cancelCorrection').addEventListener('click',()=>$('correctionPanel').classList.remove('show'));
+  $('saveCorrection').addEventListener('click',()=>{
+    const text=$('correctionText').value.trim(); if(!text){toast('اول متن اصلاح را بنویس.');return;}
+    let items=[];try{items=JSON.parse(localStorage.getItem(correctionsKey)||'[]');}catch{}
+    items.push({question:correctionTarget?.question||lastQuestion, previousAnswer:correctionTarget?.answer||lastAnswer, suggestedAnswer:text, createdAt:new Date().toISOString()});
+    try{localStorage.setItem(correctionsKey,JSON.stringify(items));toast('پیشنهاد روی همین دستگاه ذخیره شد.');$('correctionPanel').classList.remove('show');}
+    catch{toast('ذخیره‌سازی مرورگر در دسترس نیست.');}
+  });
+  $('exportBtn').addEventListener('click',()=>{
+    let items=[];try{items=JSON.parse(localStorage.getItem(correctionsKey)||'[]');}catch{}
+    if(!items.length){toast('هنوز پیشنهادی ذخیره نشده.');return;}
+    const blob=new Blob([JSON.stringify(items,null,2)],{type:'application/json;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='anime-archive-corrections.json';a.click();URL.revokeObjectURL(url);
+  });
+  $('clearBtn').addEventListener('click',()=>{chat.replaceChildren();$('intro').style.display='';$('chips').style.display='';addMessage('گفتگو پاک شد. سؤالت رو بپرس.','bot');});
+  $('aboutBtn').addEventListener('click',()=>addMessage('این یک نمونهٔ اولیه و آفلاین‌محور است. داده‌ها در data/anime.json نگهداری می‌شوند. پیشنهادهای اصلاحی فقط در حافظهٔ همین مرورگر می‌مانند تا وقتی خروجی بگیری. این نسخه مدل زبانی بزرگ یا دسترسی زنده به اینترنت ندارد.','bot'));
+  async function init(){
+    try {const res=await fetch('./data/anime.json');if(!res.ok)throw new Error('data');db=await res.json();$('statusText').textContent='بانک آماده';}
+    catch(e){$('statusText').textContent='خطای بارگذاری';addMessage('بانک اطلاعاتی بارگذاری نشد. مطمئن شو پوشهٔ data کنار فایل index.html قرار دارد و پروژه از طریق سایت یا سرور محلی باز شده است؛ بازکردن مستقیم فایل HTML ممکن است کار نکند.','bot');}
+    if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+      try{await navigator.serviceWorker.register('./sw.js');}catch(e){$('statusText').textContent='آماده · کش غیرفعال';}
+    }
+  }
+  init();
+})();
+</script>
+</body>
+</html>

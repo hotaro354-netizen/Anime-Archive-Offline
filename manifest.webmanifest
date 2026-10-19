@@ -1,0 +1,12 @@
+{
+  "name": "دستیار آفلاین Anime Archive",
+  "short_name": "Anime Archive",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#111116",
+  "theme_color": "#111116",
+  "description": "دستیار پاسخ‌گویی آفلاین با بانک اطلاعاتی محلی"
+}
